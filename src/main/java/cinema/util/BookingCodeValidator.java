@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  */
 public class BookingCodeValidator {
 
-    private static final String BOOKING_UID_PATTERN = "[A-Z0-9]{12,16}";
+    private static final String BOOKING_UID_PATTERN = "[0-9]{13,20}";
 
     public static boolean isValid(String inputString){
         Pattern pattern = Pattern.compile(BOOKING_UID_PATTERN);

@@ -1,4 +1,4 @@
-package cinema.responce;
+package cinema.dto;
 
 import java.util.List;
 

@@ -18,8 +18,6 @@ CREATE TABLE `cinema`.`seances` (
 
   `id` INT NOT NULL AUTO_INCREMENT,
 
-  `code` CHAR(11) NOT NULL,
-
   `film_id` INT NOT NULL,
 
   `date` DATE NOT NULL,
@@ -27,8 +25,6 @@ CREATE TABLE `cinema`.`seances` (
   `time` TIME NOT NULL,
 
   PRIMARY KEY (`id`),
-
-  UNIQUE INDEX `code_UNIQUE` (`code` ASC),
 
   INDEX `film_id_fk_idx` (`film_id` ASC),
 
@@ -46,9 +42,7 @@ CREATE TABLE `cinema`.`reservations` (
 
   `id` INT NOT NULL AUTO_INCREMENT,
 
-  `code` VARCHAR(15) NOT NULL,
-
-  `seat` TINYINT UNSIGNED NOT NULL,
+  `code` VARCHAR(20) NOT NULL,
 
   `seance_id` INT NOT NULL,
 
@@ -64,3 +58,16 @@ CREATE TABLE `cinema`.`reservations` (
 
     ON DELETE CASCADE
     ON UPDATE CASCADE);
+
+CREATE TABLE `cinema`.`seats` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `number` TINYINT UNSIGNED NOT NULL,
+  `reservation_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_reservation_id_idx` (`reservation_id` ASC),
+  CONSTRAINT `fk_reservation_id`
+  FOREIGN KEY (`reservation_id`)
+  REFERENCES `cinema`.`reservations` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
+

@@ -1,4 +1,4 @@
-package cinema.model;
+package cinema.dto;
 
 import java.util.List;
 
@@ -6,15 +6,15 @@ import java.util.List;
  * Created by Tory on 24.04.2017.
  */
 public class BookingInfo {
-    private String code;
+    private int seanceId;
     private List<Short> seats;
 
-    public String getCode() {
-        return code;
+    public int getSeanceId() {
+        return seanceId;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setSeanceId(int seanceId) {
+        this.seanceId = seanceId;
     }
 
     public List<Short> getSeats() {

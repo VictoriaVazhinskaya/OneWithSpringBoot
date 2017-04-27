@@ -1,9 +1,9 @@
-package cinema.model;
+package cinema.dto;
 
 /**
- * Created by Tory on 25.04.2017.
+ * Created by Tory on 24.04.2017.
  */
-public class SeanceCodeDump {
+public class BookingCodeDump {
 
     private String code;
 

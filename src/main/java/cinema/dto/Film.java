@@ -1,4 +1,4 @@
-package cinema.model;
+package cinema.dto;
 
 import java.util.Objects;
 

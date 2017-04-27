@@ -1,4 +1,4 @@
-package cinema.responce;
+package cinema.dto;
 
 /**
  * Created by Tory on 25.04.2017.

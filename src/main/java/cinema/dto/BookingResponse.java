@@ -1,6 +1,4 @@
-package cinema.responce;
-
-import cinema.model.Booking;
+package cinema.dto;
 
 /**
  * Created by Tory on 24.04.2017.
