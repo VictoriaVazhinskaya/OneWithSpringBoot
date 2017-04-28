@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by Tory on 24.04.2017.
  */
-public class StringFromNumbersMaker {
+public class NumberRepresentationUtil {
 
     private static final String SPACE = " ";
     private static final String DELIMITER_AND_SPACE = ", ";

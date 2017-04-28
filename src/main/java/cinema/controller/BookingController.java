@@ -5,7 +5,7 @@ import cinema.dto.*;
 import cinema.manager.MessageManager;
 import cinema.util.BookingCodeValidator;
 import cinema.util.SeatNumberValidator;
-import cinema.util.StringFromNumbersMaker;
+import cinema.util.NumberRepresentationUtil;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -90,7 +90,7 @@ public class BookingController {
                     } else {
                         errorMessage = String.format(messageManager.getProperty(MessageManager
                                         .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG),
-                                StringFromNumbersMaker.getStringRepresentation(unavailableSeats));
+                                NumberRepresentationUtil.getStringRepresentation(unavailableSeats));
                     }
                     flag = true;
                 }
