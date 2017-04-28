@@ -7,19 +7,19 @@ import java.sql.Time;
  * Created by vazhinskaya on 4/26/17.
  */
 public class SeanceShortInfo extends SeanceBaseInfo {
-    private int film_id;
+    private int filmId;
 
-    public SeanceShortInfo(int film_id, Date date, Time time) {
+    public SeanceShortInfo(int filmId, Date date, Time time) {
         super(date, time);
-        this.film_id = film_id;
+        this.filmId = filmId;
     }
 
-    public int getFilm_id() {
-        return film_id;
+    public int getFilmId() {
+        return filmId;
     }
 
-    public void setFilm_id(int film_id) {
-        this.film_id = film_id;
+    public void setFilmId(int filmId) {
+        this.filmId = filmId;
     }
 
 }
