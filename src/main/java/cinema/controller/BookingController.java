@@ -110,7 +110,7 @@ public class BookingController {
         return response;
     }
 
-    @RequestMapping(value = "/myooking", method = {RequestMethod.GET}, consumes = "application/json")
+    @RequestMapping(value = "/mybooking", method = {RequestMethod.GET}, consumes = "application/json")
     public BookingResponse getBookingInfo(@RequestParam final String bookingCode) {
         BookingResponse response = new BookingResponse();
         boolean isBookingReal = false;
