@@ -43,7 +43,7 @@ public class BookingController {
         return onlineBookingDao.getSchedule();
     }
 
-    @RequestMapping(value = "/seats", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/seats", method = {RequestMethod.GET})
     public ReservedSeatsResponse getReservedSeats(@RequestParam final int bookingId) {
         ReservedSeatsResponse response = new ReservedSeatsResponse();
         String errorMessage = null;
@@ -110,7 +110,7 @@ public class BookingController {
         return response;
     }
 
-    @RequestMapping(value = "/myooking", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/myooking", method = {RequestMethod.GET}, consumes = "application/json")
     public BookingResponse getBookingInfo(@RequestParam final String bookingCode) {
         BookingResponse response = new BookingResponse();
         boolean isBookingReal = false;
@@ -131,7 +131,7 @@ public class BookingController {
         return response;
     }
 
-    @RequestMapping(value = "/mybooking/cancel", method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
+    @RequestMapping(value = "/mybooking/cancel", method = {RequestMethod.GET, RequestMethod.DELETE})
     public CancellationResponse cancelReservation(@RequestParam final String bookingCode) {
         CancellationResponse response = new CancellationResponse();
         String errorMessage = null;
