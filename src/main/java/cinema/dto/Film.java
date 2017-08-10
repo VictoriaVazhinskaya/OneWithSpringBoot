@@ -1,5 +1,10 @@
 package cinema.dto;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Objects;
 
 /**
@@ -7,6 +12,11 @@ import java.util.Objects;
  */
 public class Film {
 
+    @Id
+    @GenericGenerator(name="gen", strategy="increment")
+    @GeneratedValue(generator="gen")
+    @Column(unique = true, nullable = false, precision = 11, scale = 0)
+    private long id;
     private String name;
     private short year;
     private String genre;
@@ -19,6 +29,14 @@ public class Film {
         this.genre = genre;
         this.name = name;
         this.year = year;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(final long id) {
+        this.id = id;
     }
 
     public String getGenre() {

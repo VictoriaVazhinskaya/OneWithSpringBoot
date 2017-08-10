@@ -9,6 +9,7 @@ import java.sql.Time;
 public abstract class SeanceBaseInfo {
     private Date date;
     private Time time;
+    private long cinemaId;
 
     public SeanceBaseInfo() {
         super();
@@ -33,5 +34,13 @@ public abstract class SeanceBaseInfo {
 
     public void setTime(Time time) {
         this.time = time;
+    }
+
+    public long getCinemaId() {
+        return cinemaId;
+    }
+
+    public void setCinemaId(final long cinemaId) {
+        this.cinemaId = cinemaId;
     }
 }

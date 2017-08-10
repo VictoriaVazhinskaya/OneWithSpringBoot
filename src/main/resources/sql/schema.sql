@@ -32,7 +32,7 @@ CREATE TABLE `cinema`.`seances` (
 
     FOREIGN KEY (`film_id`)
 
-    REFERENCES `cinema`.`films` (`id`)
+    REFERENCES `cinema`.film (`id`)
 
     ON DELETE CASCADE
 
@@ -54,7 +54,7 @@ CREATE TABLE `cinema`.`reservations` (
 
     FOREIGN KEY (`seance_id`)
 
-    REFERENCES `cinema`.`seances` (`id`)
+    REFERENCES `cinema`.seance (`id`)
 
     ON DELETE CASCADE
     ON UPDATE CASCADE);
@@ -67,7 +67,7 @@ CREATE TABLE `cinema`.`seats` (
   INDEX `fk_reservation_id_idx` (`reservation_id` ASC),
   CONSTRAINT `fk_reservation_id`
   FOREIGN KEY (`reservation_id`)
-  REFERENCES `cinema`.`reservations` (`id`)
+  REFERENCES `cinema`.reservation (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 

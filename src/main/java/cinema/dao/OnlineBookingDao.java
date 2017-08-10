@@ -32,7 +32,7 @@ public class OnlineBookingDao {
 
     public List<Seance> getSchedule() {
         String query = "SELECT F.name, F.year, F.genre, S.date, S.time" +
-                " FROM cinema.seances AS S LEFT JOIN cinema.films AS F ON S.film_id=F.id ORDER BY S.date AND S.time;";
+                " FROM cinema.seance AS S LEFT JOIN cinema.film AS F ON S.film_id=F.id ORDER BY S.date AND S.time;";
         List<Seance> raspisanie = jdbcTemplate.query(query, (rs, rowNum) -> {
             Film film = new Film();
             film.setName(rs.getString("name"));
@@ -51,15 +51,15 @@ public class OnlineBookingDao {
 
 
     public List<Short> getReservedSeats(int seanceId) {
-        String query = "SELECT S.number FROM cinema.seances SEA LEFT JOIN cinema.reservations AS R ON SEA.id = R.seance_id " +
-                "LEFT JOIN cinema.seats AS S ON R.id = S.reservation_id WHERE SEA.id = ? ;";
+        String query = "SELECT S.number FROM cinema.seance SEA LEFT JOIN cinema.reservation AS R ON SEA.id = R.seance_id " +
+                "LEFT JOIN cinema.seat AS S ON R.id = S.reservation_id WHERE SEA.id = ? ;";
         List<Short> alreadyReserved = jdbcTemplate.query(query, new SingleColumnRowMapper(Short.class), seanceId);
         return alreadyReserved;
     }
 
 
     public void addReservation(String reservation_code, List<Short> seats, int seanceId) {
-        String insertQuery1 = "INSERT INTO cinema.reservations(code, seance_id) VALUES(?, ?) ;";
+        String insertQuery1 = "INSERT INTO cinema.reservation(code, seance_id) VALUES(?, ?) ;";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -71,7 +71,7 @@ public class OnlineBookingDao {
                 keyHolder);
         int reservationId = (int) keyHolder.getKey().intValue();
 
-        String insertQuery2 = "INSERT INTO cinema.seats (number, reservation_id) VALUES(?, ?)";
+        String insertQuery2 = "INSERT INTO cinema.seat (number, reservation_id) VALUES(?, ?)";
         jdbcTemplate.batchUpdate(insertQuery2, new BatchPreparedStatementSetter() {
 
             @Override
@@ -102,8 +102,8 @@ public class OnlineBookingDao {
 
     public Booking getBookingInfo(String bookingCode) {
         String selectQuery1 = "SELECT F.name, F.year, F.genre, S.date, S.time, R.id " +
-                "FROM cinema.seances AS S LEFT JOIN cinema.films AS F ON S.film_id=F.id " +
-                "RIGHT JOIN cinema.reservations R ON R.seance_id = S.id WHERE R.code LIKE ? ;";
+                "FROM cinema.seance AS S LEFT JOIN cinema.film AS F ON S.film_id=F.id " +
+                "RIGHT JOIN cinema.reservation R ON R.seance_id = S.id WHERE R.code LIKE ? ;";
         Booking booking = new Booking();
         Seance seance = new Seance();
         Integer reservationId;
@@ -124,7 +124,7 @@ public class OnlineBookingDao {
         }
 
         System.out.println("Extracted reservation_id: " + reservationId);
-        String selectQuery2 = "SELECT number FROM cinema.seats WHERE reservation_id = ? ;";
+        String selectQuery2 = "SELECT number FROM cinema.seat WHERE reservation_id = ? ;";
         List<Short> seats = jdbcTemplate.query(selectQuery2, new SingleColumnRowMapper(Short.class), reservationId);
         booking.setSeance(seance);
         booking.setReservedSeats(seats);
@@ -132,7 +132,7 @@ public class OnlineBookingDao {
     }
 
     public boolean deleteBooking(String bookingCode) {
-        String deleteQuery = "DELETE FROM cinema.reservations WHERE code LIKE ? ;";
+        String deleteQuery = "DELETE FROM cinema.reservation WHERE code LIKE ? ;";
         int affectedRowsNumber = jdbcTemplate.update(deleteQuery, bookingCode);
         if (affectedRowsNumber == 0) {
             return false;
