@@ -1,32 +1,34 @@
 package cinema.dto;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Time;
 
 /**
  * Created by Tory on 23.04.2017.
  */
-
+@Entity
 @Table(name = "seance")
 public class Seance{
 
     @Id
-    @GenericGenerator(name="gen", strategy="increment")
-    @GeneratedValue(generator="gen")
-    @Column(unique = true, nullable = false, precision = 11, scale = 0)
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(unique = true, nullable = false, precision = 11)
     private long id;
+
+    @Temporal(value=TemporalType.DATE)
     private Date date;
+
+    @Temporal(value=TemporalType.TIME)
     private Time time;
 
-
+    @ManyToOne(targetEntity = Film.class)
+    @JoinColumn(name = "film_id", referencedColumnName = "id")
     private Film film;
-    private long cinemaId;
+
+    @ManyToOne(targetEntity = Cinema.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "cinema_id", referencedColumnName = "id")
+    private Cinema cinema;
 
     public Seance() {
         super();
@@ -56,12 +58,12 @@ public class Seance{
         this.time = time;
     }
 
-    public long getCinemaId() {
-        return cinemaId;
+    public Cinema getCinema() {
+        return cinema;
     }
 
-    public void setCinemaId(final long cinemaId) {
-        this.cinemaId = cinemaId;
+    public void setCinema(final Cinema cinema) {
+        this.cinema = cinema;
     }
 
     public Film getFilm() {

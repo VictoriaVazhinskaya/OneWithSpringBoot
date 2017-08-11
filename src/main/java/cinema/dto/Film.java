@@ -2,20 +2,19 @@ package cinema.dto;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 /**
  * Created by Tory on 23.04.2017.
  */
+@Entity
+@Table(name = "film")
 public class Film {
 
     @Id
-    @GenericGenerator(name="gen", strategy="increment")
-    @GeneratedValue(generator="gen")
-    @Column(unique = true, nullable = false, precision = 11, scale = 0)
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(unique = true, nullable = false, precision = 11)
     private long id;
     private String name;
     private short year;
