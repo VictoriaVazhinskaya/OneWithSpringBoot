@@ -1,8 +1,10 @@
 package cinema.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -15,14 +17,16 @@ public class Film {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(unique = true, nullable = false, precision = 11)
-    private long id;
+    private Long id;
+
+    @Column(length = 40)
     private String name;
     private short year;
+
+    @Column(length = 20)
     private String genre;
 
-    public Film(){
-        super();
-    }
+    public Film(){}
 
     public Film(String genre, String name, short year) {
         this.genre = genre;
@@ -30,11 +34,11 @@ public class Film {
         this.year = year;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(final long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 

@@ -1,5 +1,8 @@
 package cinema.util;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,5 +24,17 @@ public class NumberRepresentationUtil {
         stringBuilder.append(numbers.get(numberOfNumbers-1));
         stringBuilder.append(SPACE);
         return  stringBuilder.toString();
+    }
+
+    public static List<Short> getNumberListFromString(final String s){
+        final String[] numbersAsStrings = s.split("\\s+");
+        return new ArrayList<Short>(numbersAsStrings.length){
+            {
+                for(String numberAsString : numbersAsStrings){
+                    add(new Short(numberAsString));
+                }
+            }
+        };
+
     }
 }

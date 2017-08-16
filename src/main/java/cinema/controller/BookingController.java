@@ -1,158 +1,267 @@
 package cinema.controller;
 
-import cinema.dao.OnlineBookingDao;
+import cinema.dao.BookingRepository;
+import cinema.dao.SeanceRepository;
+import cinema.dao.UserRepository;
 import cinema.dto.Booking;
-import cinema.dto.BookingInfo;
 import cinema.dto.Seance;
-import cinema.dto.SeanceShortInfo;
-import cinema.dto.response.BookingResponse;
-import cinema.dto.response.CancellationResponse;
-import cinema.dto.response.ReservationResponse;
-import cinema.dto.response.ReservedSeatsResponse;
+import cinema.dto.request.BookingRequest;
+import cinema.dto.request.UpdateBookingRequest;
+import cinema.dto.response.*;
+import cinema.dto.user.Role;
+import cinema.dto.user.User;
 import cinema.manager.MessageManager;
+import cinema.security.UserActionManager;
+import cinema.service.booking.BookingService;
 import cinema.util.BookingCodeValidator;
 import cinema.util.NumberRepresentationUtil;
-import cinema.util.SeatNumberValidator;
-import org.springframework.context.annotation.ComponentScan;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.apache.tomcat.util.codec.binary.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.inject.Inject;
-import java.util.HashSet;
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by Tory on 20.04.2017.
  */
 
 @RestController
-@RequestMapping("/by/cinema")
-@ComponentScan(basePackages = {"cinema.dao", "cinema.manager"})
 public class BookingController {
 
-    @Inject
+    @Autowired
     private MessageManager messageManager;
 
-    @Inject
-    private OnlineBookingDao onlineBookingDao;
+    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Autowired
+    private SeanceRepository seanceRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BookingService bookingService;
+
+    private static final String BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE = "bookingUnavailable";
 
 
-    @RequestMapping(value = "/schedule", method = RequestMethod.GET)
-    public List<Seance> greeting() {
-        return onlineBookingDao.getSchedule();
-    }
 
-    @RequestMapping(value = "/seats", method = {RequestMethod.GET})
-    public ReservedSeatsResponse getReservedSeats(@RequestParam final int bookingId) {
-        ReservedSeatsResponse response = new ReservedSeatsResponse();
-        String errorMessage = null;
-        boolean isBookingReal = false;
-        List<Short> alreadyReserved = null;
-        if (bookingId > 0) {
-            alreadyReserved = onlineBookingDao.getReservedSeats(bookingId);
-            if (!alreadyReserved.isEmpty()) {
-                if (alreadyReserved.get(0) == null) {
-                    alreadyReserved.clear();
-                }
-                isBookingReal = true;
-            } else {
-                alreadyReserved = null;
+    @RequestMapping(value = {"/", "/day", "/home"}, method = RequestMethod.GET)
+    public SeancesResponse getSpecifiedDaySeances(@RequestParam(required = false) final String date) {
+        final SeancesResponse response = new SeancesResponse();
+        List<Seance> seances = new ArrayList<>();
+        try {
+            final Date entireDate;
+            if(date == null){
+                final LocalDate localDate = LocalDate.now();
+                entireDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant());
+            }else {
+                entireDate = Date.from(LocalDate.parse(date).atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant());
             }
+            seances = seanceRepository.findByDateLike(entireDate);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setErrorMessage("Internal Server Error");
         }
-        if (!isBookingReal) {
-            errorMessage = String.format(messageManager.getProperty(MessageManager.NONEXISTENT_SEANCE_ID_MSG), bookingId);
+        if (seances.isEmpty()) {
+            response.setErrorMessage("No seance found for date=" + date);
+        } else {
+            response.setSeances(seances);
         }
-        response.setReservedSeats(alreadyReserved);
-        response.setErrorMessage(errorMessage);
         return response;
     }
 
-    @RequestMapping(value = "/booking", method = RequestMethod.POST)
-    public ReservationResponse reserve(@RequestBody BookingInfo input) {
-        ReservationResponse response = new ReservationResponse();
-        String errorMessage = null;
-        int seanceId = input.getSeanceId();
-        List<Short> seats = input.getSeats();
-        boolean flag = false;
-        String reservationCode = null;
-        if (seanceId > 0) {
-            short seatNumberCheckingResult;
-            if ((seatNumberCheckingResult = SeatNumberValidator.isValidNumbers(seats))
-                    == SeatNumberValidator.SUCCESSFUL_VALIDATION) {
-                Set<Short> alreadyReserved = new HashSet<Short>(onlineBookingDao.getReservedSeats(seanceId));
-                if (!alreadyReserved.isEmpty()) {
-                    List<Short> unavailableSeats = seats.stream().filter(seat -> alreadyReserved.contains(seat))
-                            .collect(Collectors.toList());
-                    if (unavailableSeats.isEmpty()) {
-                        SeanceShortInfo info = onlineBookingDao.getSeanceInfo(seanceId);
-                        reservationCode = generateBookingCode(info, seats.get(0));
-                        onlineBookingDao.addReservation(reservationCode, seats, seanceId);
-                    } else {
-                        errorMessage = String.format(messageManager.getProperty(MessageManager
+    @RequestMapping(value = "/film/seances", method = RequestMethod.GET)
+    public SeancesResponse getSpecifiedFilmSeances(@RequestParam final Long id,
+                                                   @RequestParam final String date) {
+        final SeancesResponse response = new SeancesResponse();
+        List<Seance> seances = new ArrayList<>();
+        try {
+            seances = seanceRepository.findByFilmIdAndDateGreaterThanEqual(id, formatter.parse(date));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setErrorMessage("Internal Server Error");
+        }
+        if (seances.isEmpty()) {
+            response.setErrorMessage("No seance found for film with id=" + id);
+        } else {
+            response.setSeances(seances);
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/place/seances", method = RequestMethod.GET)
+    public SeancesResponse getSpecifiedCinemaSeances(@RequestParam final Long cinema,
+                                                     @RequestParam final String date) {
+        final SeancesResponse response = new SeancesResponse();
+        List<Seance> seances = new ArrayList<>();
+        try {
+            seances = seanceRepository.findByHallCinemaIdAndDateGreaterThanEqual(cinema, formatter.parse(date));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setErrorMessage("Internal server error");
+        }
+        if (seances.isEmpty()) {
+            response.setErrorMessage("No seance found for date=" + date);
+        } else {
+            response.setSeances(seances);
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "/seance/occupancy", method = RequestMethod.GET)
+    public OccupancyInfoResponse getFreeSeatsForSeance(@RequestParam final Long id) {
+        final OccupancyInfoResponse response = new OccupancyInfoResponse();
+        final Seance seance = seanceRepository.findOne(id);
+        if (seance == null) {
+            response.setErrorMessage("No seance found for film with id=" + id);
+        } else {
+            final int hallCapacity = seance.getHall().getCapacity();
+            response.setCapacity(hallCapacity);
+            final List<Booking> bookings = bookingRepository.findBySeanceId(id);
+            final List<Short> reservedSeats = new ArrayList<>();
+            bookings.stream().forEach(b -> reservedSeats.addAll(b.getReservedSeatNumbers()));
+            response.setReservedSeats(reservedSeats);
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "**/seance/booking", method = {RequestMethod.GET, RequestMethod.POST})
+    public BookingResponse book(@RequestParam final Long seanceId,
+                                @RequestParam(required = false) final Long userId,
+                                @RequestParam final String seats,
+                                final HttpServletRequest request) {
+        final BookingResponse response = new BookingResponse();
+        Booking booking = null;
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = null;
+        final HttpSession session = request.getSession(true);
+        if(authentication instanceof AnonymousAuthenticationToken){
+            if(session.getAttribute(BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE) == null) {
+                currentUser = new User();
+                userRepository.save(currentUser);
+                session.setAttribute(BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE, Boolean.TRUE);
+            }
+        }else{
+            currentUser = (User)authentication.getPrincipal();
+        }
+        if(currentUser != null) {
+            if (UserActionManager.allowsToBook(userId, currentUser.getId(), currentUser.getRole())) {
+                final Seance seance = seanceRepository.findOne(seanceId);
+                booking = new Booking(seance, currentUser.getId());
+                final List<Short> unavailableSeats = bookingService.save(booking,
+                        NumberRepresentationUtil.getNumberListFromString(seats));
+                if (unavailableSeats != null) {
+                    if (unavailableSeats.size() > 0) {
+                        response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
                                         .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG),
-                                NumberRepresentationUtil.getStringRepresentation(unavailableSeats));
+                                NumberRepresentationUtil.getStringRepresentation(unavailableSeats)));
+                        booking = null;
+                    } else {
+                        response.setIsRebooked(true);
                     }
-                    flag = true;
                 }
             } else {
-                errorMessage = String.format(messageManager.getProperty(MessageManager.NONEXISTENT_SEAT_ERR_MSG),
-                        seatNumberCheckingResult);
-                flag = true;
+                response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
             }
+        }else{
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+            response.setInfoMessage(messageManager.getProperty(MessageManager.ACTION_FORBIDDEN_CAUSE_MSG));
         }
-
-        if (flag == false) {
-            errorMessage = String.format(messageManager.getProperty(MessageManager.NONEXISTENT_SEANCE_ID_MSG), seanceId);
-        }
-        response.setReservationCode(reservationCode);
-        response.setErrorMessage(errorMessage);
+        response.setBooking(booking);
         return response;
     }
 
-    @RequestMapping(value = "/mybooking", method = {RequestMethod.GET}, consumes = "application/json")
-    public BookingResponse getBookingInfo(@RequestParam final String bookingCode) {
-        BookingResponse response = new BookingResponse();
+    @RequestMapping(value = "/adm/search/bycode", method = RequestMethod.GET)
+    public BookingResponse getBookingByCode(@RequestParam final String bookingCode) {
+        final BookingResponse response = new BookingResponse();
         boolean isBookingReal = false;
-        if (BookingCodeValidator.isValid(bookingCode)) {
-            Booking booking = onlineBookingDao.getBookingInfo(bookingCode);
-            if (booking != null) {
+        if(bookingCode != null && BookingCodeValidator.isValid(bookingCode)){
+            final Booking booking = bookingRepository.findByCode(bookingCode);
+            if(booking != null){
                 response.setBooking(booking);
-                response.setErrorMessage(null);
                 isBookingReal = true;
             }
         }
-        if (!isBookingReal) {
-            response.setBooking(null);
-            String errorMessage = String.format(messageManager.getProperty(MessageManager
-                    .NONEXISTENT_RESERVATION_CODE_ERR_MSG), bookingCode);
-            response.setErrorMessage(errorMessage);
-        }
-        return response;
-    }
-
-    @RequestMapping(value = "/mybooking/cancel", method = {RequestMethod.GET, RequestMethod.DELETE})
-    public CancellationResponse cancelReservation(@RequestParam final String bookingCode) {
-        CancellationResponse response = new CancellationResponse();
-        String errorMessage = null;
-        boolean isReservationCanceled = false;
-        if (BookingCodeValidator.isValid(bookingCode)) {
-            isReservationCanceled = onlineBookingDao.deleteBooking(bookingCode);
-        }
-        if (!isReservationCanceled) {
-            errorMessage = String.format(messageManager.getProperty(MessageManager
-                    .RESERVATION_CANCELING_FAILURE_ERR_MSG), String.format(messageManager.getProperty(MessageManager
+        if(!isBookingReal){
+            response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
                     .NONEXISTENT_RESERVATION_CODE_ERR_MSG), bookingCode));
         }
-        response.setErrorMessage(errorMessage);
         return response;
     }
 
-    //TODO move to util
-    private String generateBookingCode(SeanceShortInfo info, short seatNumber) {
-        int filmId = info.getFilmId();
-        String date = info.getDate().toString().replaceAll("-", "");
-        String time = info.getTime().toString().substring(0, 6).replaceAll(":", "");
-        return String.format("%1$d%2$s%3$s%4$d", filmId, date, time, seatNumber);
+    @RequestMapping(value = {"/user/story/bylogin", "/adm/user-story/bylogin"}, method = RequestMethod.GET)
+    public UserBookingStoryResponse getUserBookingStory(@RequestParam final String username) {
+        final User user = userRepository.findByLogin(username);
+        UserBookingStoryResponse response = new UserBookingStoryResponse();
+        if(user != null){
+            response = getUserBookingStory(user.getId());
+        }else{
+            response.setErrorMessage("User with login=" + username + " does not exist");
+        }
+        return response;
     }
+
+    @RequestMapping(value = {"/user/story/byid", "/adm/user-story/byid"}, method = RequestMethod.GET)
+    public UserBookingStoryResponse getUserBookingStory(@RequestParam final Long userId) {
+        final UserBookingStoryResponse response = new UserBookingStoryResponse();
+        final List<Booking> bookings = bookingRepository.findByUserid(userId);
+        response.setBookings(bookings);
+        return response;
+    }
+
+
+    @RequestMapping(value = "/user/cancel", method = {RequestMethod.GET, RequestMethod.DELETE})
+    public CancellationResponse cancelBooking(@RequestParam final Long bookingId) {
+        final CancellationResponse response = new CancellationResponse();
+        final Booking booking = bookingRepository.findOne(bookingId);
+        final User authorizedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (UserActionManager.allowsToCancelBooking(booking.getUserid(), authorizedUser.getId(), authorizedUser.getRole())) {
+            bookingService.cancel(bookingId);
+        }else{
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+        }
+        return response;
+    }
+
+    @RequestMapping(value = "**/user/rebooking", method = RequestMethod.GET)
+    public BookingResponse book(@RequestParam final Long bookingId,
+                                @RequestParam final String newSeats) {
+        final BookingResponse response = new BookingResponse();
+        final Booking booking = bookingRepository.findOne(bookingId);
+        final User authorizedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (UserActionManager.allowsToRebook(booking.getUserid(), authorizedUser.getId(), authorizedUser.getRole())) {
+            final List<Short> unavailableSeats = bookingService.update(booking,
+                    NumberRepresentationUtil.getNumberListFromString(newSeats));
+            if (!unavailableSeats.isEmpty()) {
+                response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
+                                .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG),
+                        NumberRepresentationUtil.getStringRepresentation(unavailableSeats)));
+            } else {
+                response.setBooking(booking);
+                response.setIsRebooked(true);
+            }
+        } else {
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+        }
+        return response;
+    }
+
 }

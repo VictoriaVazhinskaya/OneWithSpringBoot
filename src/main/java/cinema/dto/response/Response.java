@@ -4,7 +4,9 @@ package cinema.dto.response;
  * Created by Tory on 25.04.2017.
  */
 public abstract class Response {
-    String errorMessage;
+    private String errorMessage;
+
+    private String infoMessage;
 
     public String getErrorMessage() {
         return errorMessage;
@@ -12,5 +14,13 @@ public abstract class Response {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getInfoMessage() {
+        return infoMessage;
+    }
+
+    public void setInfoMessage(String infoMessage) {
+        this.infoMessage = infoMessage;
     }
 }

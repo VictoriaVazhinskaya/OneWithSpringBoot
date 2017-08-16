@@ -1,45 +1,51 @@
 package cinema.dto;
 
 import javax.persistence.*;
+//import javax.validation.constraints.NotNull;
 
 /**
  * Created by Victoria on 8/11/17.
  */
-
-@Table(name="seat")
+@Entity
+@Table(name="reserved_seat")
 public class Seat {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Column(unique = true, nullable = false, precision = 11)
-    private long id;
+    private Long id;
 
-    private int number;
+    @Column(nullable = false)
+    private short number;
 
-    @Column(name = "reservation_id")
-    private long reservationId;
+    @Column(name = "booking_id", nullable = false)
+    private Long bookingId;
 
-    public long getId() {
-        return id;
-    }
+    public Seat(){}
 
-    public void setId(final long id) {
-        this.id = id;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(final int number) {
+    public Seat(Long bookingId, short number) {
+        this.bookingId = bookingId;
         this.number = number;
     }
 
-    public long getReservationId() {
-        return reservationId;
+    public Long getId() {
+        return id;
     }
 
-    public void setReservationId(final long reservationId) {
-        this.reservationId = reservationId;
+    public void setId(final Long id) {
+        this.id = id;
     }
+
+    public short getNumber() {
+        return number;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
+
 }

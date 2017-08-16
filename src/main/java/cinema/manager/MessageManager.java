@@ -1,13 +1,15 @@
 package cinema.manager;
 
 
-import javax.inject.Named;
+//import javax.inject.Named;
+import org.springframework.stereotype.Component;
+
 import java.util.ResourceBundle;
 
 /**
  * Created by Tory on 24.04.2017.
  */
-@Named
+@Component
 public class MessageManager {
 
     private ResourceBundle resourceBundle;
@@ -16,6 +18,8 @@ public class MessageManager {
     public static final String TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG = "seat.error.alreadyreserved";
     public static final String NONEXISTENT_RESERVATION_CODE_ERR_MSG = "reservation.code.error.nonexistent";
     public static final String RESERVATION_CANCELING_FAILURE_ERR_MSG = "reservation.cancel.error";
+    public static final String INADMISSIBLE_ACTION_ATTEMPT_MSG = "action.attempt.inadmissible";
+    public static final String ACTION_FORBIDDEN_CAUSE_MSG="action.forbidden.cause";
 
     public MessageManager(){
         resourceBundle = ResourceBundle.getBundle("messages");

@@ -9,6 +9,8 @@ public class BookingResponse extends Response {
 
     private Booking booking;
 
+    private boolean isRebooked = false;
+
     public Booking getBooking() {
         return booking;
     }
@@ -17,4 +19,11 @@ public class BookingResponse extends Response {
         this.booking = booking;
     }
 
+    public boolean getIsRebooked() {
+        return isRebooked;
+    }
+
+    public void setIsRebooked(boolean isRebooked) {
+        this.isRebooked = isRebooked;
+    }
 }
