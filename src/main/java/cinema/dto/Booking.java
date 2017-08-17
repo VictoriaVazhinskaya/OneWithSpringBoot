@@ -24,7 +24,7 @@ public class Booking {
     @JoinColumn(name = "seance_id", nullable = false)
     private Seance seance;
 
-    @OneToMany
+    @OneToMany(orphanRemoval = true)
     @JoinColumn(name = "booking_id")
     private List<Seat> reservedSeats;
 

@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Created by Tory on 14.08.2017.
@@ -38,14 +40,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/user/story/*", "/user/rebooking", "/user/cancel").hasAnyRole(Role.ROLE_ADMIN.getValue(), Role.ROLE_MANAGER.getValue(), Role.ROLE_USER.getValue())
                 .antMatchers("/adm/**").hasAnyRole(Role.ROLE_ADMIN.getValue(), Role.ROLE_MANAGER.getValue())
-                .antMatchers("/film/seances","/place/seances", "/day", "/home", "/", "/seance/booking").permitAll()
+                .antMatchers("/film/seances","/place/seances", "/day", "/home", "/", "/seance/booking", "/seance/occupancy", "/logout").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
                 .permitAll()
                 .and()
-                .logout().logoutUrl("/login?logout").logoutSuccessUrl("/home").invalidateHttpSession(true)
+                .logout().logoutUrl("/logout").invalidateHttpSession(true)
                 .permitAll()
                 .and()
                 .exceptionHandling().accessDeniedPage("/home")

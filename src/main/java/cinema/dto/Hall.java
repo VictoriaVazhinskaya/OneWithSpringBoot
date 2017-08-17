@@ -19,7 +19,7 @@ public class Hall {
 
     private int capacity;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "cinema_id", nullable = false)
     private Cinema cinema;
 

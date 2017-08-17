@@ -5,10 +5,7 @@ import cinema.dao.SeanceRepository;
 import cinema.dao.UserRepository;
 import cinema.dto.Booking;
 import cinema.dto.Seance;
-import cinema.dto.request.BookingRequest;
-import cinema.dto.request.UpdateBookingRequest;
 import cinema.dto.response.*;
-import cinema.dto.user.Role;
 import cinema.dto.user.User;
 import cinema.manager.MessageManager;
 import cinema.security.UserActionManager;
@@ -16,24 +13,22 @@ import cinema.service.booking.BookingService;
 import cinema.util.BookingCodeValidator;
 import cinema.util.NumberRepresentationUtil;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.LocaleResolver;
 
 import javax.servlet.http.HttpSession;
-import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Tory on 20.04.2017.
@@ -44,6 +39,12 @@ public class BookingController {
 
     @Autowired
     private MessageManager messageManager;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @Autowired
+    private LocaleResolver localeResolver;
 
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -59,7 +60,7 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    private static final String BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE = "bookingUnavailable";
+    private static final String BOOKING_ACTION_UNAVAILABLE_IF_GUEST_ATTR = "bookingUnavailable";
 
 
 
@@ -89,15 +90,17 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/film/seances", method = RequestMethod.GET)
-    public SeancesResponse getSpecifiedFilmSeances(@RequestParam final Long id,
+    public SeancesResponse getSpecifiedFilmSeances(final HttpServletRequest httpServletRequest,
+            @RequestParam final Long id,
                                                    @RequestParam final String date) {
         final SeancesResponse response = new SeancesResponse();
+        final Locale locale = localeResolver.resolveLocale(httpServletRequest);
         List<Seance> seances = new ArrayList<>();
         try {
             seances = seanceRepository.findByFilmIdAndDateGreaterThanEqual(id, formatter.parse(date));
         } catch (Exception e) {
             e.printStackTrace();
-            response.setErrorMessage("Internal Server Error");
+            response.setErrorMessage(messageSource.getMessage(messageManager.INTERNAL_ERROR, null, locale));
         }
         if (seances.isEmpty()) {
             response.setErrorMessage("No seance found for film with id=" + id);
@@ -108,18 +111,20 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/place/seances", method = RequestMethod.GET)
-    public SeancesResponse getSpecifiedCinemaSeances(@RequestParam final Long cinema,
+    public SeancesResponse getSpecifiedCinemaSeances(final HttpServletRequest httpServletRequest,
+                                                     @RequestParam final Long cinema,
                                                      @RequestParam final String date) {
         final SeancesResponse response = new SeancesResponse();
+        final Locale locale = localeResolver.resolveLocale(httpServletRequest);
         List<Seance> seances = new ArrayList<>();
         try {
             seances = seanceRepository.findByHallCinemaIdAndDateGreaterThanEqual(cinema, formatter.parse(date));
         } catch (Exception e) {
             e.printStackTrace();
-            response.setErrorMessage("Internal server error");
+            response.setErrorMessage(messageSource.getMessage(messageManager.INTERNAL_ERROR, null, locale));
         }
         if (seances.isEmpty()) {
-            response.setErrorMessage("No seance found for date=" + date);
+            response.setErrorMessage(messageSource.getMessage(messageManager.INVALID_DATE_ERR, null, locale));
         } else {
             response.setSeances(seances);
         }
@@ -127,11 +132,13 @@ public class BookingController {
     }
 
     @RequestMapping(value = "/seance/occupancy", method = RequestMethod.GET)
-    public OccupancyInfoResponse getFreeSeatsForSeance(@RequestParam final Long id) {
+    public OccupancyInfoResponse getFreeSeatsForSeance(final HttpServletRequest httpServletRequest,
+                                                       @RequestParam final Long id) {
         final OccupancyInfoResponse response = new OccupancyInfoResponse();
         final Seance seance = seanceRepository.findOne(id);
         if (seance == null) {
-            response.setErrorMessage("No seance found for film with id=" + id);
+            final Locale locale = localeResolver.resolveLocale(httpServletRequest);
+            response.setErrorMessage(messageSource.getMessage(messageManager.NONEXISTENT_FILM_ID, new Object[]{id}, locale));
         } else {
             final int hallCapacity = seance.getHall().getCapacity();
             response.setCapacity(hallCapacity);
@@ -143,21 +150,28 @@ public class BookingController {
         return response;
     }
 
-    @RequestMapping(value = "**/seance/booking", method = {RequestMethod.GET, RequestMethod.POST})
-    public BookingResponse book(@RequestParam final Long seanceId,
+    @RequestMapping(value = "/seance/booking", method = {RequestMethod.GET, RequestMethod.POST})
+    public BookingResponse book(final HttpServletRequest httpServletRequest,
+                                @RequestParam final Long seanceId,
                                 @RequestParam(required = false) final Long userId,
                                 @RequestParam final String seats,
                                 final HttpServletRequest request) {
         final BookingResponse response = new BookingResponse();
+        final Locale locale = localeResolver.resolveLocale(httpServletRequest);
         Booking booking = null;
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = null;
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final HttpSession session = request.getSession(true);
-        if(authentication instanceof AnonymousAuthenticationToken){
-            if(session.getAttribute(BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE) == null) {
+        boolean isUserGuest;
+        int keyHash;
+        if((isUserGuest = authentication instanceof AnonymousAuthenticationToken)){
+            if((currentUser = userRepository.findByKeyhash(keyHash = ((AnonymousAuthenticationToken) authentication).getKeyHash()))
+                    == null) {
                 currentUser = new User();
+                currentUser.setKeyhash(keyHash);
                 userRepository.save(currentUser);
-                session.setAttribute(BOOKING_ACTION_UNAVAILABLE_ATTRIBUTE, Boolean.TRUE);
+            }else  if (session.getAttribute(BOOKING_ACTION_UNAVAILABLE_IF_GUEST_ATTR) != null) {
+                currentUser = null;
             }
         }else{
             currentUser = (User)authentication.getPrincipal();
@@ -170,39 +184,47 @@ public class BookingController {
                         NumberRepresentationUtil.getNumberListFromString(seats));
                 if (unavailableSeats != null) {
                     if (unavailableSeats.size() > 0) {
-                        response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
-                                        .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG),
-                                NumberRepresentationUtil.getStringRepresentation(unavailableSeats)));
+                        response.setErrorMessage(messageSource.getMessage(MessageManager.TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR,
+                                new Object[]{NumberRepresentationUtil.getStringRepresentation(unavailableSeats)},
+                                locale));
                         booking = null;
                     } else {
                         response.setIsRebooked(true);
                     }
                 }
             } else {
-                response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+                response.setErrorMessage(messageSource.getMessage(messageManager.getProperty(MessageManager
+                                .INADMISSIBLE_ACTION_ATTEMPT), null, locale));
             }
         }else{
-            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
-            response.setInfoMessage(messageManager.getProperty(MessageManager.ACTION_FORBIDDEN_CAUSE_MSG));
+            response.setErrorMessage(messageSource.getMessage(MessageManager.INADMISSIBLE_ACTION_ATTEMPT, null, locale));
+            response.setInfoMessage(messageSource.getMessage(MessageManager.ACTION_FORBIDDEN_CAUSE_MSG, null, locale));
+        }
+        if(booking != null && isUserGuest){
+            session.setAttribute(BOOKING_ACTION_UNAVAILABLE_IF_GUEST_ATTR, true);
         }
         response.setBooking(booking);
         return response;
     }
 
     @RequestMapping(value = "/adm/search/bycode", method = RequestMethod.GET)
-    public BookingResponse getBookingByCode(@RequestParam final String bookingCode) {
+    public BookingResponse getBookingByCode(final HttpServletRequest httpServletRequest,
+                                            @RequestParam final String bookingCode) {
         final BookingResponse response = new BookingResponse();
-        boolean isBookingReal = false;
+        final Locale locale = localeResolver.resolveLocale(httpServletRequest);
         if(bookingCode != null && BookingCodeValidator.isValid(bookingCode)){
             final Booking booking = bookingRepository.findByCode(bookingCode);
-            if(booking != null){
-                response.setBooking(booking);
-                isBookingReal = true;
+            if(booking != null) {
+                final User authorizedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (UserActionManager.givesAccessToUserInfo(booking.getUserid(), authorizedUser.getId(), authorizedUser.getRole())){
+                    response.setBooking(booking);
+            }else{
+                    response.setErrorMessage(messageSource.getMessage(MessageManager.INADMISSIBLE_ACTION_ATTEMPT, null, locale));
+                }
             }
-        }
-        if(!isBookingReal){
-            response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
-                    .NONEXISTENT_RESERVATION_CODE_ERR_MSG), bookingCode));
+        }else{
+            response.setErrorMessage(messageSource.getMessage(MessageManager.NONEXISTENT_RESERVATION_CODE_ERR,
+                    new Object[]{bookingCode}, locale));
         }
         return response;
     }
@@ -222,13 +244,18 @@ public class BookingController {
     @RequestMapping(value = {"/user/story/byid", "/adm/user-story/byid"}, method = RequestMethod.GET)
     public UserBookingStoryResponse getUserBookingStory(@RequestParam final Long userId) {
         final UserBookingStoryResponse response = new UserBookingStoryResponse();
-        final List<Booking> bookings = bookingRepository.findByUserid(userId);
-        response.setBookings(bookings);
+        final User authorizedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(UserActionManager.givesAccessToUserInfo(userId, authorizedUser.getId(), authorizedUser.getRole())) {
+            final List<Booking> bookings = bookingRepository.findByUserid(userId);
+            response.setBookings(bookings);
+        }else{
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT));
+        }
         return response;
     }
 
 
-    @RequestMapping(value = "/user/cancel", method = {RequestMethod.GET, RequestMethod.DELETE})
+    @RequestMapping(value = {"/user/cancel", "adm/user/cancel"}, method = {RequestMethod.GET, RequestMethod.DELETE})
     public CancellationResponse cancelBooking(@RequestParam final Long bookingId) {
         final CancellationResponse response = new CancellationResponse();
         final Booking booking = bookingRepository.findOne(bookingId);
@@ -236,12 +263,12 @@ public class BookingController {
         if (UserActionManager.allowsToCancelBooking(booking.getUserid(), authorizedUser.getId(), authorizedUser.getRole())) {
             bookingService.cancel(bookingId);
         }else{
-            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT));
         }
         return response;
     }
 
-    @RequestMapping(value = "**/user/rebooking", method = RequestMethod.GET)
+    @RequestMapping(value = {"/user/rebooking", "adm/user/rebooking"}, method = RequestMethod.GET)
     public BookingResponse book(@RequestParam final Long bookingId,
                                 @RequestParam final String newSeats) {
         final BookingResponse response = new BookingResponse();
@@ -252,14 +279,14 @@ public class BookingController {
                     NumberRepresentationUtil.getNumberListFromString(newSeats));
             if (!unavailableSeats.isEmpty()) {
                 response.setErrorMessage(String.format(messageManager.getProperty(MessageManager
-                                .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR_MSG),
+                                .TRYING_RESERVE_ALREADY_RESERVED_SEATS_ERR),
                         NumberRepresentationUtil.getStringRepresentation(unavailableSeats)));
             } else {
                 response.setBooking(booking);
                 response.setIsRebooked(true);
             }
         } else {
-            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT_MSG));
+            response.setErrorMessage(messageManager.getProperty(MessageManager.INADMISSIBLE_ACTION_ATTEMPT));
         }
         return response;
     }

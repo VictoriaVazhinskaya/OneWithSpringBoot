@@ -1,7 +1,6 @@
 package cinema.dto;
 
 import javax.persistence.*;
-//import javax.validation.constraints.NotNull;
 
 /**
  * Created by Victoria on 8/11/17.
@@ -19,12 +18,12 @@ public class Seat {
     private short number;
 
     @Column(name = "booking_id", nullable = false)
-    private Long bookingId;
+    private Long bookingid;
 
     public Seat(){}
 
-    public Seat(Long bookingId, short number) {
-        this.bookingId = bookingId;
+    public Seat(Long bookingid, short number) {
+        this.bookingid = bookingid;
         this.number = number;
     }
 
@@ -40,12 +39,12 @@ public class Seat {
         return number;
     }
 
-    public Long getBookingId() {
-        return bookingId;
+    public Long getBookingid() {
+        return bookingid;
     }
 
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
+    public void setBookingid(Long bookingid) {
+        this.bookingid = bookingid;
     }
 
 }

@@ -1,6 +1,6 @@
 package cinema.service.booking;
 
-import cinema.dao.BookedSeatRepository;
+import cinema.dao.ReservedSeatRepository;
 import cinema.dao.BookingRepository;
 import cinema.dto.Booking;
 import cinema.dto.Seance;
@@ -24,7 +24,7 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
     @Autowired
-    private BookedSeatRepository bookedSeatRepository;
+    private ReservedSeatRepository reservedSeatRepository;
 
     private Lock lock = new ReentrantLock();
 
@@ -45,7 +45,7 @@ public class BookingService {
                 final Booking sameBooking = bookingRepository.findBySeanceIdAndUserid(seance.getId(), booking.getUserid());
                 if(sameBooking != null){
                     booking = sameBooking;
-                    bookedSeatRepository.delete(sameBooking.getReservedSeats());
+                    reservedSeatRepository.delete(sameBooking.getReservedSeats());
                 }else{
                     bookingRepository.save(booking);
                     unavailableSeats = null;
@@ -53,7 +53,7 @@ public class BookingService {
                 final List<Seat> seats = new ArrayList<>();
                 final long bookingId = booking.getId();
                 seatsForBooking.stream().forEach(n -> seats.add(new Seat(bookingId, n)));
-                bookedSeatRepository.save(seats);
+                reservedSeatRepository.save(seats);
                 booking.setReservedSeats(seats);
             }
         }finally {
@@ -76,8 +76,8 @@ public class BookingService {
             if(unavailableSeats.isEmpty()){
                 final List<Seat> newSeats = new ArrayList<>();
                 newSeatNumbers.stream().forEach(n -> newSeats.add(new Seat(booking.getId(), n)));
-                bookedSeatRepository.delete(booking.getReservedSeats());
-                bookedSeatRepository.save(newSeats);
+                reservedSeatRepository.delete(booking.getReservedSeats());
+                reservedSeatRepository.save(newSeats);
                 booking.setReservedSeats(newSeats);
             }
         }finally{
@@ -87,6 +87,8 @@ public class BookingService {
     }
 
     public void cancel(final Long id){
+        final List<Seat> seats = reservedSeatRepository.findByBookingid(id);
+        reservedSeatRepository.delete(seats);
         bookingRepository.delete(id);
     }
 

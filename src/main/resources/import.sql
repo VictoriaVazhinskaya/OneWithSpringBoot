@@ -76,12 +76,12 @@ INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 12, '2017-08
 INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 12, '2017-08-16', '18:30');
 INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 12, '2017-08-19', '21:00');
 
---//PW for "odmen"(ADMIN) = lordOfCabinet
+--//PW for "odmen"(ADMIN) = god
 --//PW for "vice-odmen"(MANAGER) = manager
 --//PW for "lenochka-princesochka1431"(USER) = mimimi2017
 --//PW for "boginya638"(USER) = sushiOneLove
 --//PW for "GrustniyVadim"(USER) = mneGrustno2017
-INSERT INTO cinema.user (login, password, role) VALUES ('odmen', '$2a$04$K4FRa1504o5xlnerZ6.1WelrkP/GCC13MIDkN8g6rsL7rdP0x895S', 'ROLE_ADMIN');
+INSERT INTO cinema.user (login, password, role) VALUES ('odmen', '$2a$04$4K.fPyvdfvSiqvvQ8AEmn.po1hhA2PG4Z8PznqBqLEuTkABLlEJs6', 'ROLE_ADMIN');
 INSERT INTO cinema.user (login, password, role) VALUES ('manager', '$2a$04$3EOsLEIHqhiXLGZevdZqh.XqjEXrEClOCrlDpCa1xB0m8i4zD0Y3u', 'ROLE_MANAGER');
 INSERT INTO cinema.user (login, password, role) VALUES ('lenochka-princesochka1431', '$2a$04$2TLmPjukuJgO.uztkxrigOK9HAwHPUg3EZ9k17quPN423XXEfYF9u', 'ROLE_USER');
 INSERT INTO cinema.user (login, password, role) VALUES ('boginya638', '$2a$04$HT3xomWMqOQwOFtkULA8XeuCkpwtKSEH.c22jNhkrXFpu68x5Ukdu', 'ROLE_USER');

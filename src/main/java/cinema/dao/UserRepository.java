@@ -10,7 +10,9 @@ import java.util.List;
  */
 public interface UserRepository extends CrudRepository<User, Long>{
 
-    User findByLogin(String login);
+    User findByLogin(final String login);
+
+    User findByKeyhash(final Integer keyhash);
 
 }
 

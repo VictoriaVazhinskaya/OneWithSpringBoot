@@ -31,6 +31,9 @@ public class User {
     @JoinColumn(name = "user_id")
     private List<Booking> bookings;
 
+    @Column(length = 12, name = "key_hash")
+    private Integer keyhash;
+
 
     public User(){}
 
@@ -85,5 +88,13 @@ public class User {
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
+    }
+
+    public Integer getKeyhash() {
+        return keyhash;
+    }
+
+    public void setKeyhash(Integer keyhash) {
+        this.keyhash = keyhash;
     }
 }

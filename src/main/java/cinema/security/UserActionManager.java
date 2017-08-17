@@ -37,4 +37,16 @@ public class UserActionManager {
         }
         return false;
     }
+
+    public static boolean givesAccessToUserInfo(final long userId,
+                                                final long authorizedUserId,
+                                                final Role authorizedUserRole){
+        if(authorizedUserId == userId || Role.ROLE_ADMIN.equals(authorizedUserRole)
+                || Role.ROLE_MANAGER.equals(authorizedUserRole)){
+            return true;
+        }
+        return false;
+    }
+
+
 }
