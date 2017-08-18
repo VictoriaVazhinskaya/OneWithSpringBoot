@@ -3,6 +3,7 @@ package cinema.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -31,13 +32,13 @@ public class Seance{
 
     @OneToMany(mappedBy = "seance")
     private List<Booking> bookings;
-/*    @ManyToOne
-    @JoinColumn(name = "cinema_id", nullable = false)
-    private Cinema cinema;*/
 
     @ManyToOne
     @JoinColumn(name = "hall_id", nullable = false)
     private Hall hall;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal price;
 
     public Long getId() {
         return id;
@@ -62,14 +63,6 @@ public class Seance{
     public void setTime(final Date time) {
         this.time = time;
     }
-
-/*    public Cinema getCinema() {
-        return cinema;
-    }
-
-    public void setCinema(final Cinema cinema) {
-        this.cinema = cinema;
-    }*/
 
     public Film getFilm() {
         return film;
@@ -100,13 +93,12 @@ public class Seance{
         bookings.add(booking);
     }
 
-    /*    @Override
-    public String toString() {
-        return new StringBuilder().append("[id=").append(id)
-                .append(", date=").append(date)
-                .append(", time=").append(time)
-                .append(", film_id=").append(film.getId())
-                .append(", cinema_id").append(cinema.getId())
-                .append("]").toString();
-    }*/
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
 }

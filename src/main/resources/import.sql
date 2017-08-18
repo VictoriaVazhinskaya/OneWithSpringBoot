@@ -29,52 +29,52 @@ INSERT INTO cinema.hall (number, capacity, cinema_id) VALUES (2, 225, 4);
 INSERT INTO cinema.hall (number, capacity, cinema_id) VALUES (1, 250, 5);
 
 -----------------//Oktyabr//---------------
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 1, '2017-08-15', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 1, '2017-08-16', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (2, 1, '2017-08-17', '12:40');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 1, '2017-08-15', '14:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 1, '2017-08-18', '16:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 1, '2017-08-19', '18:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 1, '2017-08-15', '21:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 1, '2017-08-18', '12:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 1, '2017-08-16', '21:00');
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 1, '2017-08-15', '10:20', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 1, '2017-08-16', '10:20', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (2, 1, '2017-08-17', '12:40', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 1, '2017-08-15', '14:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (9, 1, '2017-08-18', '16:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 1, '2017-08-19', '18:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 1, '2017-08-15', '21:00', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 1, '2017-08-18', '12:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 1, '2017-08-16', '21:00', 3);
 --------------//Silver Screen//------------
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 2, '2017-08-15', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 2, '2017-08-16', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (2, 3, '2017-08-17', '12:40');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 6, '2017-08-15', '14:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 2, '2017-08-18', '16:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 5, '2017-08-19', '18:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 4, '2017-08-15', '21:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 6, '2017-08-18', '12:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 8, '2017-08-16', '21:00');
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 2, '2017-08-15', '10:20', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 2, '2017-08-16', '10:20', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (2, 3, '2017-08-17', '12:40', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 6, '2017-08-15', '14:30', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (9, 2, '2017-08-18', '16:30', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 5, '2017-08-19', '18:30', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 4, '2017-08-15', '21:00', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 6, '2017-08-18', '12:30', 5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 8, '2017-08-16', '21:00', 5);
 -----------------//Pioner//----------------
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 9, '2017-08-15', '10:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (2, 9, '2017-08-16', '12:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (6, 9, '2017-08-15', '14:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (7, 9, '2017-08-17', '16:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 9, '2017-08-18', '18:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 9, '2017-08-17', '20:00');
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 9, '2017-08-15', '10:00', 1);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (2, 9, '2017-08-16', '12:00', 2);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (6, 9, '2017-08-15', '14:00', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (7, 9, '2017-08-17', '16:00', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 9, '2017-08-18', '18:00', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 9, '2017-08-17', '20:00', 3);
 -----------------//Avrora//----------------
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 11, '2017-08-15', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 11, '2017-08-16', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (2, 10, '2017-08-17', '12:40');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 10, '2017-08-15', '14:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 11, '2017-08-18', '16:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 10, '2017-08-19', '18:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 11, '2017-08-15', '21:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 11, '2017-08-18', '12:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 10, '2017-08-16', '21:00');
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 11, '2017-08-15', '10:20', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 11, '2017-08-16', '10:20', 2);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (2, 10, '2017-08-17', '12:40', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 10, '2017-08-15', '14:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (9, 11, '2017-08-18', '16:30', 3.5);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 10, '2017-08-19', '18:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 11, '2017-08-15', '21:00', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 11, '2017-08-18', '12:30', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 10, '2017-08-16', '21:00', 3);
 ---------------//Tsentralniy//-------------
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (4, 12, '2017-08-18', '10:20');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (5, 12, '2017-08-15', '12:40');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (3, 12, '2017-08-16', '14:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 12, '2017-08-17', '16:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 12, '2017-08-19', '18:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 12, '2017-08-15', '21:00');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (9, 12, '2017-08-18', '16:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (1, 12, '2017-08-16', '18:30');
-INSERT INTO cinema.seance (film_id, hall_id, date, time) VALUES (8, 12, '2017-08-19', '21:00');
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (4, 12, '2017-08-18', '10:20', 3);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (5, 12, '2017-08-15', '12:40', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (3, 12, '2017-08-16', '14:30', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (9, 12, '2017-08-17', '16:30', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 12, '2017-08-19', '18:30', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 12, '2017-08-15', '21:00', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (9, 12, '2017-08-18', '16:30', 4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (1, 12, '2017-08-16', '18:30', 4.4);
+INSERT INTO cinema.seance (film_id, hall_id, date, time, price) VALUES (8, 12, '2017-08-19', '21:00', 4.4);
 
 --//PW for "odmen"(ADMIN) = god
 --//PW for "vice-odmen"(MANAGER) = manager
