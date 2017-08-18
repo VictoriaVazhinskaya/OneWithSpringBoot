@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/OneWithSpringBoot.iml" filepath="$PROJECT_DIR$/OneWithSpringBoot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/OneWithSSandHibernate.iml" filepath="$PROJECT_DIR$/OneWithSSandHibernate.iml" />
     </modules>
   </component>
 </project>
